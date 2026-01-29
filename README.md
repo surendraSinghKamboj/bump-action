@@ -24,7 +24,7 @@ Please refer to [`action.yml`](./action.yml) in this repository to see all avail
 
 ## Contributing
 
-If you need more features, please submit an issue or a pull request.
+If you need more features, please submit an issue or a pull request. 
 
 ## How to add additional features and/or test
 
